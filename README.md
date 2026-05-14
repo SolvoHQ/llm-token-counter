@@ -1,73 +1,83 @@
-# React + TypeScript + Vite
+# LLM Token Counter
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Free, instant, private.** Count tokens and estimate API costs across 18 LLM models — entirely in your browser. Your text never leaves your machine.
 
-Currently, two official plugins are available:
+**[→ Try it live: llmtokens.vercel.app](https://llmtokens.vercel.app)**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## What it does
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Paste any prompt or context and instantly get:
 
-## Expanding the ESLint configuration
+- **Exact token count** for all OpenAI models (uses the same `tiktoken` library OpenAI uses)
+- **~5% approximate count** for Claude and Gemini (providers don't publish tokenizers)
+- **Cost estimate** at current API input pricing
+- **All 18 models at once** in the Comparison tab, sorted cheapest-first
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Demo
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+```
+Paste any text...
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+┌──────────────────────────┬────────┬────────────┬──────────────────────┐
+│ Model                    │ Tokens │ $/1M input │ Cost for this text   │
+├──────────────────────────┼────────┼────────────┼──────────────────────┤
+│ Gemini 2.0 Flash         │ ~47    │ $0.10      │ $0.000005            │
+│ GPT-4o mini              │  47    │ $0.15      │ $0.000007            │
+│ Gemini 2.5 Flash         │ ~47    │ $0.30      │ $0.000014            │
+│ GPT-4.1                  │  47    │ $2.00      │ $0.000094            │
+│ GPT-4o                   │  47    │ $2.50      │ $0.000118            │
+│ Claude Sonnet 4.6        │ ~47    │ $3.00      │ $0.000141            │
+│ Claude Opus 4.7          │ ~47    │ $5.00      │ $0.000235            │
+│ o1                       │  47    │ $15.00     │ $0.000706            │
+└──────────────────────────┴────────┴────────────┴──────────────────────┘
+                                                  ↑ cheapest highlighted
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Supported models
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| Provider | Accuracy | Models |
+|----------|----------|--------|
+| **OpenAI** | Exact | GPT-4o, GPT-4o mini, GPT-4.1, o1, o3, o3-mini, GPT-3.5 Turbo |
+| **Anthropic** | ~5% | Claude Opus 4.7, Claude Sonnet 4.6, Claude Haiku 4.5, Claude 3.7 Sonnet, Claude 3.5 Sonnet, Claude 3 Haiku, Claude 3 Opus |
+| **Google** | ~5% | Gemini 2.5 Pro, Gemini 2.5 Flash, Gemini 2.0 Flash, Gemini 1.5 Pro |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Token accuracy
+
+- **OpenAI**: exact count using `js-tiktoken` (WASM port of the official tiktoken library)
+- **Anthropic / Google**: ~5% approximation using the GPT-4 tokenizer as a proxy — these providers don't publish their tokenizers. Accurate enough for cost budgeting and prompt sizing decisions.
+
+## No install needed
+
+Open [llmtokens.vercel.app](https://llmtokens.vercel.app) in any browser. Works on mobile.
+
+To run locally:
+
+```bash
+git clone https://github.com/SolvoHQ/llm-token-counter
+cd llm-token-counter
+npm install && npm run dev
+# → http://localhost:5173
 ```
+
+## Features
+
+- **Counter tab** — pick one model, see token count + cost
+- **Comparison tab** — all 18 models ranked cheapest-first, cheapest highlighted
+- **Copy link** — share your exact prompt as a URL (text + model encoded in URL hash, nothing sent to any server)
+- **Privacy by design** — pure client-side WASM, zero network requests for tokenization
+
+## Stack
+
+- React + TypeScript + Vite
+- [`js-tiktoken`](https://github.com/dqbd/tiktoken) — WASM tokenizer, 100% client-side
+- No backend · No analytics · No cookies
+
+---
+
+## ⭐ Star this repo if it saved you time
+
+[![GitHub stars](https://img.shields.io/github/stars/SolvoHQ/llm-token-counter?style=social)](https://github.com/SolvoHQ/llm-token-counter)
+
+*Pricing data is manually maintained. Check each provider's pricing page for the latest rates.*
