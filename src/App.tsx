@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { encodingForModel, type TiktokenModel } from "js-tiktoken";
 import "./App.css";
 
@@ -70,6 +70,9 @@ export default function App() {
   const [tab, setTab] = useState<Tab>(() => parseHash().tab);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [waitlistEmail, setWaitlistEmail] = useState('');
+  const [waitlistState, setWaitlistState] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const waitlistInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -105,6 +108,25 @@ export default function App() {
     await navigator.clipboard.writeText(String(tokenCount));
     setCopiedId(modelId);
     setTimeout(() => setCopiedId((prev) => (prev === modelId ? null : prev)), 1500);
+  };
+
+  const handleWaitlistSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setWaitlistState('submitting');
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: waitlistEmail }),
+      });
+      if (res.ok) {
+        setWaitlistState('success');
+      } else {
+        setWaitlistState('error');
+      }
+    } catch {
+      setWaitlistState('error');
+    }
   };
 
   const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
@@ -234,6 +256,38 @@ export default function App() {
           </div>
         )}
       </main>
+
+      <section className="waitlist">
+        {waitlistState === 'success' ? (
+          <p className="waitlist-success">You're on the list.</p>
+        ) : (
+          <form className="waitlist-form" onSubmit={handleWaitlistSubmit}>
+            <label className="waitlist-label">Get early API access — enter your email</label>
+            <div className="waitlist-row">
+              <input
+                ref={waitlistInputRef}
+                className="waitlist-input"
+                type="email"
+                placeholder="you@example.com"
+                value={waitlistEmail}
+                onChange={e => setWaitlistEmail(e.target.value)}
+                disabled={waitlistState === 'submitting'}
+                required
+              />
+              <button
+                className="waitlist-btn"
+                type="submit"
+                disabled={waitlistState === 'submitting'}
+              >
+                {waitlistState === 'submitting' ? 'Sending…' : 'Join waitlist'}
+              </button>
+            </div>
+            {waitlistState === 'error' && (
+              <p className="waitlist-error">Error — try again.</p>
+            )}
+          </form>
+        )}
+      </section>
 
       <footer className="app-footer">
         Prices as of May 2026{" "}
