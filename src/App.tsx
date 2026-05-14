@@ -236,7 +236,7 @@ export default function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Source on GitHub
+          ⭐ Star on GitHub
         </a>
         <span className="sep">·</span>{" "}
         <a href="https://regex-tester-ashy.vercel.app" target="_blank" rel="noopener noreferrer">Regex Tester</a>
