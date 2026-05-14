@@ -152,11 +152,18 @@ export default function App() {
               ))}
             </select>
             <div className="counter-display">
-              <div className="counter-big">
-                {selectedModel.approximate && selectedTokenCount > 0 ? '≈ ' : ''}
-                {selectedTokenCount > 0 ? selectedTokenCount.toLocaleString() : '0'}
+              <div
+                className="counter-big"
+                title={selectedTokenCount === -1 ? "Tokenizer failed to load" : undefined}
+              >
+                {selectedTokenCount === -1
+                  ? "Error"
+                  : <>{selectedModel.approximate && selectedTokenCount > 0 ? '≈ ' : ''}{selectedTokenCount > 0 ? selectedTokenCount.toLocaleString() : '0'}</>
+                }
               </div>
-              <div className="counter-meta">tokens · {selectedCost}</div>
+              <div className="counter-meta">
+                {selectedTokenCount === -1 ? "tokenizer failed" : `tokens · ${selectedCost}`}
+              </div>
               {selectedModel.approximate && selectedTokenCount > 0 && (
                 <div className="counter-approx">estimated · proprietary tokenizer</div>
               )}
@@ -236,12 +243,8 @@ export default function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Source on GitHub
+          ⭐ Star on GitHub
         </a>
-        <span className="sep">·</span>{" "}
-        <a href="https://regex-tester-ashy.vercel.app" target="_blank" rel="noopener noreferrer">Regex Tester</a>
-        <span className="sep">·</span>{" "}
-        <a href="https://jwt-decoder-teal.vercel.app" target="_blank" rel="noopener noreferrer">JWT Decoder</a>
         <span className="sep">·</span>{" "}
         Made by{" "}
         <a href="https://solvo.dev" target="_blank" rel="noopener noreferrer">
