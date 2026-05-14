@@ -1,0 +1,210 @@
+/* ── Design tokens ── */
+:root {
+  --bg: #0d0d0d;
+  --surface: #161616;
+  --border: #2a2a2a;
+  --text: #a0a0a0;
+  --text-dim: #555;
+  --text-bright: #f0f0f0;
+  --accent: #e8ff57;
+  --accent-dim: rgba(232, 255, 87, 0.12);
+  --mono: ui-monospace, Consolas, "Cascadia Code", "SF Mono", Monaco, monospace;
+  --radius: 6px;
+  --max-w: 720px;
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100dvh;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+/* ── Layout ── */
+.app {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 48px 24px 32px;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ── Header ── */
+.app-header h1 {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-bright);
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+.subtitle {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* ── Main ── */
+.app-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
+/* ── Model selector ── */
+.model-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.model-row label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-bright);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23555' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+  transition: border-color 0.15s;
+}
+select:hover, select:focus {
+  border-color: #444;
+}
+
+/* ── Textarea ── */
+textarea {
+  width: 100%;
+  min-height: 300px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-bright);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.7;
+  padding: 16px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s;
+}
+textarea:focus {
+  border-color: #3a3a3a;
+}
+textarea::placeholder {
+  color: var(--text-dim);
+}
+
+/* ── Results grid ── */
+.results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 480px) {
+  .results-grid { grid-template-columns: 1fr; }
+}
+
+.token-block,
+.cost-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.token-block {
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--mono);
+  transition: border-color 0.15s, background 0.15s;
+  color: inherit;
+}
+.token-block:hover {
+  border-color: #3a3a3a;
+  background: #1a1a1a;
+}
+.token-block.copied {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+.token-block.copied .big-number {
+  color: var(--accent);
+}
+
+.big-number {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--text-bright);
+  letter-spacing: -1px;
+  line-height: 1;
+}
+.cost-number {
+  font-size: 28px;
+}
+
+.block-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ── Approx note ── */
+.approx-note {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+/* ── Stats row ── */
+.stats-row {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-dim);
+  align-items: center;
+}
+.sep { color: #333; }
+
+/* ── Footer ── */
+.app-footer {
+  font-size: 12px;
+  color: var(--text-dim);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
