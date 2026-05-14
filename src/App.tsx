@@ -202,7 +202,7 @@ export default function App() {
               <th>Model</th>
               <th>Provider</th>
               <th>Tokens</th>
-              <th>Cost</th>
+              <th>Cost (input)</th>
               <th>Exact/Approx</th>
             </tr>
           </thead>
@@ -241,6 +241,7 @@ export default function App() {
           <p className="approx-note">
             * Models marked "≈ Est." use a proprietary tokenizer. Count is estimated using
             OpenAI's cl100k_base — accuracy is within ~5% for English text.
+            {" "}Prices are input tokens only; output tokens typically cost 2–5× more.
           </p>
         )}
           </>
@@ -304,6 +305,10 @@ export default function App() {
         <a href="https://solvo.dev" target="_blank" rel="noopener noreferrer">
           Solvo
         </a>
+        <span className="sep">·</span>{" "}
+        <a href="https://llmtokens.goatcounter.com" target="_blank" rel="noopener noreferrer">
+          Analytics
+        </a>{": pageviews only, no text"}
       </footer>
     </div>
   );
