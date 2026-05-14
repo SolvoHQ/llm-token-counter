@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { encodingForModel, type TiktokenModel } from "js-tiktoken";
 import "./App.css";
 
@@ -24,6 +24,12 @@ const MODELS: Model[] = [
   { id: "claude-3-opus",     label: "Claude 3 Opus",     provider: "Anthropic", tiktokenId: "gpt-4" as TiktokenModel, pricePerMillion: 15.00, approximate: true  },
   { id: "gemini-2.0-flash",  label: "Gemini 2.0 Flash",  provider: "Google",    tiktokenId: "gpt-4" as TiktokenModel, pricePerMillion: 0.10,  approximate: true  },
   { id: "gemini-1.5-pro",    label: "Gemini 1.5 Pro",    provider: "Google",    tiktokenId: "gpt-4" as TiktokenModel, pricePerMillion: 1.25,  approximate: true  },
+  { id: "claude-haiku-4-5",  label: "Claude Haiku 4.5",  provider: "Anthropic", tiktokenId: "gpt-4" as TiktokenModel, pricePerMillion: 1.00,  approximate: true  },
+  { id: "claude-sonnet-4-6", label: "Claude Sonnet 4.6", provider: "Anthropic", tiktokenId: "gpt-4" as TiktokenModel, pricePerMillion: 3.00,  approximate: true  },
+  { id: "claude-opus-4-7",   label: "Claude Opus 4.7",   provider: "Anthropic", tiktokenId: "gpt-4" as TiktokenModel, pricePerMillion: 5.00,  approximate: true  },
+  { id: "gemini-2.5-flash",  label: "Gemini 2.5 Flash",  provider: "Google",    tiktokenId: "gpt-4" as TiktokenModel, pricePerMillion: 0.30,  approximate: true  },
+  { id: "gemini-2.5-pro",    label: "Gemini 2.5 Pro",    provider: "Google",    tiktokenId: "gpt-4" as TiktokenModel, pricePerMillion: 1.25,  approximate: true  },
+  { id: "o3",                label: "o3",                provider: "OpenAI",    tiktokenId: "gpt-4o",                 pricePerMillion: 2.00,  approximate: false },
 ];
 
 const SAMPLE_TEXT =
@@ -46,9 +52,32 @@ function formatCost(count: number, pricePerMillion: number): string {
   return `$${cost.toFixed(4)}`;
 }
 
+type Tab = 'counter' | 'comparison';
+
+const parseHash = () => {
+  const hash = window.location.hash.slice(1);
+  const params = new URLSearchParams(hash);
+  return {
+    text: params.get('t') ?? SAMPLE_TEXT,
+    modelId: params.get('m') ?? 'gpt-4o',
+    tab: params.get('v') === 'counter' ? 'counter' as const : 'comparison' as const,
+  };
+};
+
 export default function App() {
-  const [text, setText] = useState(SAMPLE_TEXT);
+  const [text, setText] = useState(() => parseHash().text);
+  const [selectedModelId, setSelectedModelId] = useState(() => parseHash().modelId);
+  const [tab, setTab] = useState<Tab>(() => parseHash().tab);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (text) params.set('t', text);
+    params.set('m', selectedModelId);
+    params.set('v', tab);
+    history.replaceState(null, '', '#' + params.toString());
+  }, [text, selectedModelId, tab]);
 
   const rows = useMemo(() => {
     return [...MODELS]
@@ -60,6 +89,16 @@ export default function App() {
   }, [text]);
 
   const cheapestId = rows.length > 0 ? rows[0].model.id : null;
+
+  const selectedModel = MODELS.find(m => m.id === selectedModelId) ?? MODELS[0];
+  const selectedTokenCount = useMemo(() => countTokens(text, selectedModel), [text, selectedModel]);
+  const selectedCost = formatCost(selectedTokenCount, selectedModel.pricePerMillion);
+
+  const handleCopyLink = async () => {
+    await navigator.clipboard.writeText(window.location.href);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 1500);
+  };
 
   const handleCopyTokens = async (modelId: string, tokenCount: number) => {
     if (tokenCount === 0) return;
@@ -75,7 +114,15 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>LLM Token Counter</h1>
+        <div className="header-row">
+          <h1>LLM Token Counter</h1>
+          <button
+            className={`copy-link-btn${linkCopied ? " copied" : ""}`}
+            onClick={handleCopyLink}
+          >
+            {linkCopied ? "Copied!" : "Copy link"}
+          </button>
+        </div>
         <p className="subtitle">Free, instant, client-side — your text never leaves the browser.</p>
       </header>
 
@@ -88,6 +135,37 @@ export default function App() {
           autoFocus
         />
 
+        <div className="tab-bar">
+          <button className={`tab-btn${tab === 'counter' ? ' active' : ''}`} onClick={() => setTab('counter')}>Counter</button>
+          <button className={`tab-btn${tab === 'comparison' ? ' active' : ''}`} onClick={() => setTab('comparison')}>Comparison</button>
+        </div>
+
+        {tab === 'counter' && (
+          <div className="counter-view">
+            <select
+              className="model-select"
+              value={selectedModelId}
+              onChange={e => setSelectedModelId(e.target.value)}
+            >
+              {MODELS.map(m => (
+                <option key={m.id} value={m.id}>{m.label} ({m.provider})</option>
+              ))}
+            </select>
+            <div className="counter-display">
+              <div className="counter-big">
+                {selectedModel.approximate && selectedTokenCount > 0 ? '≈ ' : ''}
+                {selectedTokenCount > 0 ? selectedTokenCount.toLocaleString() : '0'}
+              </div>
+              <div className="counter-meta">tokens · {selectedCost}</div>
+              {selectedModel.approximate && selectedTokenCount > 0 && (
+                <div className="counter-approx">estimated · proprietary tokenizer</div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {tab === 'comparison' && (
+          <>
         <div className="table-scroll">
         <table className="comparison-table">
           <thead>
@@ -136,6 +214,8 @@ export default function App() {
             OpenAI's cl100k_base — accuracy is within ~5% for English text.
           </p>
         )}
+          </>
+        )}
 
         {text.length > 0 && (
           <div className="stats-row">
@@ -158,6 +238,10 @@ export default function App() {
         >
           Source on GitHub
         </a>
+        <span className="sep">·</span>{" "}
+        <a href="https://regex-tester-ashy.vercel.app" target="_blank" rel="noopener noreferrer">Regex Tester</a>
+        <span className="sep">·</span>{" "}
+        <a href="https://jwt-decoder-teal.vercel.app" target="_blank" rel="noopener noreferrer">JWT Decoder</a>
         <span className="sep">·</span>{" "}
         Made by{" "}
         <a href="https://solvo.dev" target="_blank" rel="noopener noreferrer">
