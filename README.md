@@ -72,7 +72,7 @@ npm install && npm run dev
 
 - React + TypeScript + Vite
 - [`js-tiktoken`](https://github.com/dqbd/tiktoken) — WASM tokenizer, 100% client-side
-- No backend · No analytics · No cookies
+- No backend · Cookieless analytics ([GoatCounter](https://www.goatcounter.com)) · No cookies
 
 ---
 
